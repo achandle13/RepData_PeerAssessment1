@@ -109,7 +109,7 @@ head(df_inter)
 
 **Maximum Average of Steps per Interval:** 206.1698
 
-**Associated interval:** 835
+**Associated Interval:** 835
 
 
 ## Describe and Execute Method for Imputing Missing Values
