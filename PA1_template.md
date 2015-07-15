@@ -25,16 +25,52 @@ df <- read.csv(con, header = TRUE, stringsAsFactors = FALSE)
 ```
 
 
-The number of observations are 17568.
+The number of observations are 
+
+```r
+nrow(df)
+```
+
+```
+## [1] 17568
+```
+
 
 ### Number of Complete and Incomplete Cases:
 ===========================================
 
-**Complete Cases:** 15264
+**Complete Cases:** 
 
-**Incomplete Cases:** 2304
+```r
+sum(complete.cases(df))
+```
 
-**Percent of Data is Incomplete:** 13.1148%
+```
+## [1] 15264
+```
+
+
+**Incomplete Cases:** 
+
+```r
+sum(!complete.cases(df))
+```
+
+```
+## [1] 2304
+```
+
+
+**Percent of Data is Incomplete:** 
+
+```r
+sum(!complete.cases(df))/nrow(df) * 100
+```
+
+```
+## [1] 13.11
+```
+
 
 ### Five Number Summary: 
 ========================
@@ -49,9 +85,27 @@ summary(df$steps)
 ```
 
 
-The number of observations with 0 entered for the number of steps are 11014.
+The number of observations with 0 entered for the number of steps are 
 
-This makes up 62.6935% of the total observations.
+```r
+sum(df$steps == 0, na.rm = TRUE)
+```
+
+```
+## [1] 11014
+```
+
+
+Percent of total observations: 
+
+```r
+sum(df$steps == 0, na.rm = TRUE)/nrow(df) * 100
+```
+
+```
+## [1] 62.69
+```
+
 
 ## Total Number of Steps Per Day and Histogram without Addressing NA Values
 ===========================================================================
@@ -62,7 +116,7 @@ hist(total, main = "Frequencies of Total Number of Steps per Day", xlab = "Total
     ylab = "Frequency of Days", breaks = 20, col = "blue")
 ```
 
-![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3.png) 
+![plot of chunk unnamed-chunk-9](figure/unnamed-chunk-9.png) 
 
 
 ### Mean and Median Across All Days
@@ -70,9 +124,27 @@ hist(total, main = "Frequencies of Total Number of Steps per Day", xlab = "Total
 
 
 
-**Mean:** 10766
+**Mean:** 
 
-**Median:** 10765
+```r
+round(mean(total, na.rm = TRUE), digits = 0)
+```
+
+```
+## [1] 10766
+```
+
+
+**Median:** 
+
+```r
+median(total, na.rm = TRUE)
+```
+
+```
+## [1] 10765
+```
+
 
 ## Line Graph of Average Steps Across Each Interval
 ====================================================
@@ -83,14 +155,20 @@ plot(interval, type = "l", main = "Interval Average Number of Steps", xlab = "In
     ylab = "Number of Steps", col = "forestgreen")
 ```
 
-![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4.png) 
+![plot of chunk unnamed-chunk-12](figure/unnamed-chunk-12.png) 
 
 
 ### Maximum Average Number of Steps Per Interval and the Associated Interval
 =============================================================================
 
-Transform list data into a data frame and review the new
-data frame. 
+Transform list data into a data frame 
+
+```r
+df_inter <- as.data.frame(interval)
+```
+
+
+and review the new data frame. 
 
 ```r
 head(df_inter)
@@ -107,9 +185,27 @@ head(df_inter)
 ```
 
 
-**Maximum Average of Steps per Interval:** 206.1698
+**Maximum Average of Steps per Interval:** 
 
-**Associated Interval:** 835
+```r
+max(df_inter$interval)
+```
+
+```
+## [1] 206.2
+```
+
+
+**Associated Interval:** 
+
+```r
+rownames(df_inter)[df_inter$interval == max(df_inter$interval)]
+```
+
+```
+## [1] "835"
+```
+
 
 
 ## Describe and Execute Method for Imputing Missing Values
@@ -174,13 +270,31 @@ hist(total, main = "Frequency of Total Number of Steps per Day with NA's Replace
     xlab = "Total Steps per Day", ylab = "Frequency of Days", breaks = 20, col = "red")
 ```
 
-![plot of chunk unnamed-chunk-9](figure/unnamed-chunk-9.png) 
+![plot of chunk unnamed-chunk-20](figure/unnamed-chunk-20.png) 
 
 
 
-**Recalculated Mean:** 10821
+**Recalculated Mean:** 
 
-**Recalculated Median:** 11015
+```r
+round(mean(total), digits = 0)
+```
+
+```
+## [1] 10821
+```
+
+
+**Recalculated Median:** 
+
+```r
+median(total)
+```
+
+```
+## [1] 11015
+```
+
 
 Median and mean are higher after replacing the values.
 
@@ -212,13 +326,49 @@ df_Weekday <- as.data.frame(muWeekday)
 ### Maximum Average Values and Associated Intervals for Weekends and Weekdays
 ==============================================================================
 
-**Weekdays (Max Value):** 237.0028
+**Weekdays (Max Value):** 
 
-**Weekdays (Interval):** 835
+```r
+max(df_Weekday$muWeekday)
+```
 
-**Weekends (Max Value):** 175
+```
+## [1] 237
+```
 
-**Weekends (Interval):** 915
+
+**Weekdays (Interval):** 
+
+```r
+rownames(df_Weekday)[df_Weekday$muWeekday == max(df_Weekday$muWeekday)]
+```
+
+```
+## [1] "835"
+```
+
+
+**Weekends (Max Value):** 
+
+```r
+max(df_Weekend$muWeekend)
+```
+
+```
+## [1] 175
+```
+
+
+**Weekends (Interval):** 
+
+```r
+rownames(df_Weekend)[df_Weekend$muWeekend == max(df_Weekend$muWeekend)]
+```
+
+```
+## [1] "915"
+```
+
 
 Weekdays have the highest average number of steps for a given interval and the interval of maximum value is a little earlier in the morning compared to weekends.
 
@@ -233,20 +383,40 @@ plot(muWeekend, type = "l", main = "Weekend", ylab = "Average Steps per Interval
     xlab = "Interval Index")
 ```
 
-![plot of chunk unnamed-chunk-12](figure/unnamed-chunk-12.png) 
+![plot of chunk unnamed-chunk-29](figure/unnamed-chunk-29.png) 
 
 
 ### Mean of all intervals for weekdays:
 =======================================
-**35.6164**
+
+```r
+mean(muWeekday)
+```
+
+```
+## [1] 35.62
+```
+
   
 ### Mean of all intervals for weekends:
 ========================================
-**43.0784**
+
+```r
+mean(muWeekend)
+```
+
+```
+## [1] 43.08
+```
+
 
 ## Conclusions on Differences between Weekend and Weekday Activity
 ====================================================================
 Although weekdays have the highest peak average for all intervals, weekends show greater consistency of activity throughout the day, as shown by a comparison of the average number of steps across all intervals for each part of the week.  Also, the weekday peak happens earlier in the day compared to weekend activity peak.  
 
 
+
+```r
+setwd(dir)
+```
 

@@ -25,16 +25,28 @@ if (!file.exists(file.path(dir,subdir)))
   
 ```
 
-The number of observations are `r nrow(df)`.
+The number of observations are 
+```{r} 
+nrow(df)
+```
 
 ### Number of Complete and Incomplete Cases:
 ===========================================
 
-**Complete Cases:** `r sum(complete.cases(df))`
+**Complete Cases:** 
+```{r} 
+sum(complete.cases(df))
+```
 
-**Incomplete Cases:** `r sum(!complete.cases(df))`
+**Incomplete Cases:** 
+```{r} 
+sum(!complete.cases(df))
+```
 
-**Percent of Data is Incomplete:** `r sum(!complete.cases(df))/nrow(df)*100`%
+**Percent of Data is Incomplete:** 
+```{r} 
+sum(!complete.cases(df))/nrow(df)*100
+```
 
 ### Five Number Summary: 
 ========================
@@ -42,9 +54,15 @@ The number of observations are `r nrow(df)`.
 summary(df$steps)
 ```  
 
-The number of observations with 0 entered for the number of steps are `r sum(df$steps==0,na.rm=TRUE)`.
+The number of observations with 0 entered for the number of steps are 
+```{r} 
+sum(df$steps==0,na.rm=TRUE)
+```
 
-This makes up `r sum(df$steps==0,na.rm=TRUE)/nrow(df)*100`% of the total observations.
+Percent of total observations: 
+```{r} 
+sum(df$steps==0,na.rm=TRUE)/nrow(df)*100
+```
 
 ## Total Number of Steps Per Day and Histogram without Addressing NA Values
 ===========================================================================
@@ -58,9 +76,15 @@ hist(total,main="Frequencies of Total Number of Steps per Day",xlab="Total Steps
 
 `r options(scipen=999)`
 
-**Mean:** `r round(mean(total,na.rm=TRUE),digits=0)`
+**Mean:** 
+```{r} 
+round(mean(total,na.rm=TRUE),digits=0)
+```
 
-**Median:** `r median(total,na.rm=TRUE)`
+**Median:** 
+```{r} 
+median(total,na.rm=TRUE)
+```
 
 ## Line Graph of Average Steps Across Each Interval
 ====================================================
@@ -72,15 +96,25 @@ plot(interval,type="l",main="Interval Average Number of Steps",xlab="Interval In
 ### Maximum Average Number of Steps Per Interval and the Associated Interval
 =============================================================================
 
-Transform list data into a data frame `r df_inter<-as.data.frame(interval)`and review the new
-data frame. 
+Transform list data into a data frame 
+```{r}
+df_inter<-as.data.frame(interval)
+```
+
+and review the new data frame. 
 ```{r} 
 head(df_inter)
 ```
 
-**Maximum Average of Steps per Interval:** `r max(df_inter$interval)`
+**Maximum Average of Steps per Interval:** 
+```{r}
+max(df_inter$interval)
+```
 
-**Associated Interval:** `r rownames(df_inter)[df_inter$interval==max(df_inter$interval)]`
+**Associated Interval:** 
+```{r} 
+rownames(df_inter)[df_inter$interval==max(df_inter$interval)]
+```
 
 
 ## Describe and Execute Method for Imputing Missing Values
@@ -130,9 +164,15 @@ hist(total,main="Frequency of Total Number of Steps per Day with NA's Replaced",
 ```
 
 
-**Recalculated Mean:** `r round(mean(total),digits=0)`
+**Recalculated Mean:** 
+```{r} 
+round(mean(total),digits=0)
+```
 
-**Recalculated Median:** `r median(total)`
+**Recalculated Median:** 
+```{r} 
+median(total)
+```
 
 Median and mean are higher after replacing the values.
 
@@ -160,13 +200,25 @@ df_Weekday<-as.data.frame(muWeekday)
 ### Maximum Average Values and Associated Intervals for Weekends and Weekdays
 ==============================================================================
 
-**Weekdays (Max Value):** `r max(df_Weekday$muWeekday)`
+**Weekdays (Max Value):** 
+```{r} 
+max(df_Weekday$muWeekday)
+```
 
-**Weekdays (Interval):** `r rownames(df_Weekday)[df_Weekday$muWeekday==max(df_Weekday$muWeekday)]`
+**Weekdays (Interval):** 
+```{r} 
+rownames(df_Weekday)[df_Weekday$muWeekday==max(df_Weekday$muWeekday)]
+```
 
-**Weekends (Max Value):** `r max(df_Weekend$muWeekend)`
+**Weekends (Max Value):** 
+```{r} 
+max(df_Weekend$muWeekend)
+```
 
-**Weekends (Interval):** `r rownames(df_Weekend)[df_Weekend$muWeekend==max(df_Weekend$muWeekend)]`
+**Weekends (Interval):** 
+```{r} 
+rownames(df_Weekend)[df_Weekend$muWeekend==max(df_Weekend$muWeekend)]
+```
 
 Weekdays have the highest average number of steps for a given interval and the interval of maximum value is a little earlier in the morning compared to weekends.
 
@@ -180,15 +232,21 @@ plot(muWeekend,type="l",main="Weekend",ylab="Average Steps per Interval",xlab="I
 
 ### Mean of all intervals for weekdays:
 =======================================
-**`r mean(muWeekday)`**
+```{r} 
+mean(muWeekday)
+```
   
 ### Mean of all intervals for weekends:
 ========================================
-**`r mean(muWeekend)`**
+```{r} 
+mean(muWeekend)
+```
 
 ## Conclusions on Differences between Weekend and Weekday Activity
 ====================================================================
 Although weekdays have the highest peak average for all intervals, weekends show greater consistency of activity throughout the day, as shown by a comparison of the average number of steps across all intervals for each part of the week.  Also, the weekday peak happens earlier in the day compared to weekend activity peak.  
 
 
-`r setwd(dir)`
+```{r}
+setwd(dir)
+```
