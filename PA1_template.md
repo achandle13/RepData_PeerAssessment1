@@ -1,63 +1,43 @@
-PA1_template
+# PA1_template
 ========================================================
 
 This markdown file answers the questions of Peer Assessment Assignment1.
 
-Note, the activity.csv dataset must be loaded in the working directory before beginning.
-
-The first step is to load the data and add new column that contains the day name:
-
-```r
-df <- read.csv("activity.csv", header = TRUE, stringsAsFactors = FALSE)
-```
-
-
-Next, let's review the data to get a sense of what the data looks like.
-
-The total number of observations are:
+## Load and Review the Data
+==========================
 
 ```r
-nrow(df)
-```
+dir <- getwd()
+subdir <- "activity"
 
-```
-## [1] 17568
-```
+setInternet2(use = TRUE)
 
+if (!file.exists(file.path(dir, subdir))) {
+    dir.create(file.path(dir, subdir), mode = "0777")
+}
 
-The number of complete cases and incomplete cases, respectively, are:
-
-```r
-sum(complete.cases(df))
-```
-
-```
-## [1] 15264
-```
-
-```r
-
-sum(!complete.cases(df))
-```
-
-```
-## [1] 2304
+setwd(file.path(dir, subdir))
+path <- file.path(getwd(), "activity.zip")
+url <- ("https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip")
+download.file(url, path)
+con <- unzip(path, "activity.csv")
+df <- read.csv(con, header = TRUE, stringsAsFactors = FALSE)
 ```
 
 
-Incomplete cases make up:
+The number of observations are 17568.
 
-```r
-sum(!complete.cases(df))/nrow(df)
-```
+### Number of Complete and Incomplete Cases:
+===========================================
 
-```
-## [1] 0.1311
-```
+**Complete Cases:** 15264
 
-of the total observations.
+**Incomplete Cases:** 2304
 
-A summary of the data yields the following results:
+**Percent of Data is Incomplete:** 13.1148%
+
+### Five Number Summary: 
+========================
 
 ```r
 summary(df$steps)
@@ -69,89 +49,48 @@ summary(df$steps)
 ```
 
 
-From the summary results we can see the data is positively skewed.  Also, given the minimum, median,
-and the first quartile are all 0, there seems to a leverage point around 0.  
+The number of observations with 0 entered for the number of steps are 11014.
 
-The number of ovservations that have 0 entered for the number of steps are:
+This makes up 62.6935% of the total observations.
 
-```r
-sum(df$steps == 0, na.rm = TRUE)
-```
-
-```
-## [1] 11014
-```
-
-Observations make up:
+## Total Number of Steps Per Day and Histogram without Addressing NA Values
+===========================================================================
 
 ```r
-sum(df$steps == 0, na.rm = TRUE)/nrow(df)
-```
-
-```
-## [1] 0.6269
-```
-
-of the total observations.
-
-Because the data reports the same intervals across multiple days, to make meaningful interpretations from the data, the data should be aggregated across days or intervals.
-
-Let's calculate the total number of steps taken per day and plot the output in a histogram, which will show the freqency for buckets of steps taken.
-
-```r
-total <- sapply(split(df$steps, df$date), sum, na.rm = TRUE)
+total <- sapply(split(df$steps, df$date), sum, na.rm = FALSE)
 hist(total, main = "Frequencies of Total Number of Steps per Day", xlab = "Total Steps per Day", 
-    ylab = "Frequency of Days", breaks = 20)
+    ylab = "Frequency of Days", breaks = 20, col = "blue")
 ```
 
-![plot of chunk unnamed-chunk-8](figure/unnamed-chunk-8.png) 
+![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3.png) 
 
 
-Next, let's calculate and report the mean and median across all days.  The mean and median,
-respectively, are:
-
-Mean:
-
-```r
-mean(total)
-```
-
-```
-## [1] 9354
-```
+### Mean and Median Across All Days
+===================================
 
 
-Median:
 
-```r
-median(total)
-```
+**Mean:** 10766
 
-```
-## [1] 10395
-```
+**Median:** 10765
 
-
-Next, let's examine the average steps taken across intervals across all days, which requires calculating the mean number of steps taken during each interval across all days and the plotting the line graph.
+## Line Graph of Average Steps Across Each Interval
+====================================================
 
 ```r
 interval <- sapply(split(df$steps, df$interval), mean, na.rm = TRUE)
-plot(interval, type = "l", main = "Interval Average Number of Steps", xlab = "Interval", 
-    ylab = "Number of Steps")
+plot(interval, type = "l", main = "Interval Average Number of Steps", xlab = "Interval Index", 
+    ylab = "Number of Steps", col = "forestgreen")
 ```
 
-![plot of chunk unnamed-chunk-11](figure/unnamed-chunk-11.png) 
+![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4.png) 
 
 
-To extract the maximum value and the interval from the average number of steps across all intervals, we must
-transform table stored in the interval variable into a data frame.
+### Maximum Average Number of Steps Per Interval and the Associated Interval
+=============================================================================
 
-```r
-df_inter <- as.data.frame(interval)
-```
-
-
-Which looks like:
+Transform list data into a data frame and review the new
+data frame. 
 
 ```r
 head(df_inter)
@@ -168,70 +107,49 @@ head(df_inter)
 ```
 
 
-The maximum average across all intervals is and its associated interval are:
-Maximum average:
+**Maximum Average of Steps per Interval:** 206.1698
+
+**Associated interval:** 835
+
+
+## Describe and Execute Method for Imputing Missing Values
+==========================================================
+
+To address the missing values, these next steps calculate the mean number of steps taken across each interval for each day of the week and replace the missing values with the mean for the given the interval of the given day (i.e. calculate mean's by weekday and interval and replace missing values with those means).  
+
+
 
 ```r
-max(df_inter$interval)
+df$day <- weekdays(as.Date(df$date, "%Y-%m-%d"))
+
+head(df$day)
 ```
 
 ```
-## [1] 206.2
+## [1] "Monday" "Monday" "Monday" "Monday" "Monday" "Monday"
 ```
 
-Related interval:
+
+Next, the average values for each interval for each weekday are calculated, missing values are replaced,and a tidy data set is output:
 
 ```r
-rownames(df_inter)[df_inter$interval == max(df_inter$interval)]
-```
 
-```
-## [1] "835"
-```
+df0 <- df[is.na(df$steps), ]
+df1 <- df[!is.na(df$steps), ]
 
+avgs <- aggregate(steps ~ interval + day, FUN = "mean", data = df, na.rm = TRUE)
 
+df2 <- merge(avgs, df0, by = c("day", "interval"), all.y = TRUE)
+df2 <- df2[order(df2$date, df2$interval), ]
+df2$steps <- df2$steps.x
 
-Also, as discussed above, the data set had a number of missing values in the steps column.  To remind the reader, the number of incomplete cases (missing values) are:
+rownames(df2) <- NULL
 
-```r
-sum(!complete.cases(df))
-```
+df2 <- df2[c("date", "interval", "day", "steps")]
 
-```
-## [1] 2304
-```
+df <- rbind(df1, df2)
 
-
-
-To address the missing values, this next step calculates the mean number of steps taken across each day (e.g. Monday's, Tuesday's, etc) and replace the missing values with mean for the given day of the week.  
-
-The first step is to assign the appropriate day of the week to the date.
-
-```r
-df$day <- weekdays(as.Date(df$date, "%m/%d/%Y"))
-```
-
-
-Next, the average values for each day of the week are calculated and will replace the missing values:
-
-```r
-mu <- sapply(split(df$steps, df$day), mean, na.rm = TRUE)
-
-muFriday <- mu[["Friday"]]
-muSaturday <- mu[["Saturday"]]
-muSunday <- mu[["Sunday"]]
-muMonday <- mu[["Monday"]]
-muTuesday <- mu[["Tuesday"]]
-muWednesday <- mu[["Wednesday"]]
-muThursday <- mu[["Thursday"]]
-
-df$steps[is.na(df$steps) & df$day == "Friday"] <- muFriday
-df$steps[is.na(df$steps) & df$day == "Saturday"] <- muSaturday
-df$steps[is.na(df$steps) & df$day == "Sunday"] <- muSunday
-df$steps[is.na(df$steps) & df$day == "Monday"] <- muMonday
-df$steps[is.na(df$steps) & df$day == "Tuesday"] <- muTuesday
-df$steps[is.na(df$steps) & df$day == "Wednesday"] <- muWednesday
-df$steps[is.na(df$steps) & df$day == "Thursday"] <- muThursday
+write.csv(df, "steps.csv", row.names = FALSE)
 ```
 
 
@@ -245,44 +163,30 @@ sum(!complete.cases(df))
 ## [1] 0
 ```
 
-Once the missing values have been replaced, the total number of steps per day and the histogram is also replotted.
+
+### Replotted Histogram and Recalculated Mean and Median after Replacing NA's
+=============================================================================
+
 
 ```r
-total <- sapply(split(df$steps, df$date), sum, na.rm = TRUE)
+total <- sapply(split(df$steps, df$date), sum, na.rm = FALSE)
 hist(total, main = "Frequency of Total Number of Steps per Day with NA's Replaced", 
-    xlab = "Total Steps per Day", ylab = "Frequency of Days", breaks = 20)
+    xlab = "Total Steps per Day", ylab = "Frequency of Days", breaks = 20, col = "red")
 ```
 
-![plot of chunk unnamed-chunk-20](figure/unnamed-chunk-20.png) 
+![plot of chunk unnamed-chunk-9](figure/unnamed-chunk-9.png) 
 
 
-The mean and median for all days are recalculated:
 
-Recalculated Mean:
+**Recalculated Mean:** 10821
 
-```r
-mean(total)
-```
-
-```
-## [1] 10821
-```
-
-
-Recalculated Median:
-
-```r
-median(total)
-```
-
-```
-## [1] 11015
-```
+**Recalculated Median:** 11015
 
 Median and mean are higher after replacing the values.
 
 
-The final portion of the analysis examines differences between weekends and weekdays.  The first step is divide the days across weekends and weekdays.  This analysis then creates separate data sets made up only of weekend or weekday observations.
+## Differences Between Weekday and Weekend Activity
+===================================================
 
 
 ```r
@@ -295,63 +199,30 @@ weekday <- df[df$weekend == "Weekday", ]
 
 
 
-The next step is to calucale the mean of each interval across all weekend and weekday days, compare the interal and maximum average steps per interval of weekends and weekdays,  and plot the results.
+The next step is to calculate the mean of each interval across all weekend and weekday days, compare the interval and maximum average steps per interval of weekends and weekdays, and plot the results.
 
 ```r
 muWeekend <- sapply(split(weekend$steps, weekend$interval), mean, na.rm = FALSE)
 muWeekday <- sapply(split(weekday$steps, weekday$interval), mean, na.rm = FALSE)
-```
-
-
-To get the maximum average steps and that value's respective interval, the muWeekend and muWeedays tables are converted to data frames and the maximum values and intervals identified.
-
-```r
 df_Weekend <- as.data.frame(muWeekend)
 df_Weekday <- as.data.frame(muWeekday)
 ```
 
 
-Weekdays (max value and interval):
+### Maximum Average Values and Associated Intervals for Weekends and Weekdays
+==============================================================================
 
-```r
-max(df_Weekday$muWeekday)
-```
+**Weekdays (Max Value):** 237.0028
 
-```
-## [1] 207.9
-```
+**Weekdays (Interval):** 835
 
-```r
-rownames(df_Weekday)[df_Weekday$muWeekday == max(df_Weekday$muWeekday)]
-```
+**Weekends (Max Value):** 175
 
-```
-## [1] "835"
-```
+**Weekends (Interval):** 915
 
+Weekdays have the highest average number of steps for a given interval and the interval of maximum value is a little earlier in the morning compared to weekends.
 
-Weekends (max value and interval):
-
-```r
-max(df_Weekend$muWeekend)
-```
-
-```
-## [1] 158.5
-```
-
-```r
-rownames(df_Weekend)[df_Weekend$muWeekend == max(df_Weekend$muWeekend)]
-```
-
-```
-## [1] "915"
-```
-
-From this comparison we see that weekdays have the highest average number of steps for a given interval and the interval is a little earlier in the morning compared to weekends.
-
-A plot shows compares activity between weekdays and weekends.
-
+This plot compares activity between weekdays and weekends.
 
 
 ```r
@@ -362,31 +233,20 @@ plot(muWeekend, type = "l", main = "Weekend", ylab = "Average Steps per Interval
     xlab = "Interval Index")
 ```
 
-![plot of chunk unnamed-chunk-28](figure/unnamed-chunk-28.png) 
+![plot of chunk unnamed-chunk-12](figure/unnamed-chunk-12.png) 
 
 
-Although weekdays have the highest peak average for all intervals, weekends show greater consistency of activity throughout the day, as shown by a comparison of the average number of steps across all intervals for each part of the week.
-
-Mean of all intervals for weekdays:
-
-```r
-mean(muWeekday)
-```
-
-```
-## [1] 35.62
-```
-
+### Mean of all intervals for weekdays:
+=======================================
+**35.6164**
   
-Mean of all intervals for weekends:
+### Mean of all intervals for weekends:
+========================================
+**43.0784**
 
-```r
-mean(muWeekend)
-```
-
-```
-## [1] 43.08
-```
+## Conclusions on Differences between Weekend and Weekday Activity
+====================================================================
+Although weekdays have the highest peak average for all intervals, weekends show greater consistency of activity throughout the day, as shown by a comparison of the average number of steps across all intervals for each part of the week.  Also, the weekday peak happens earlier in the day compared to weekend activity peak.  
 
 
-Thus, we see activity is higher on average throughout weekend days than on weekdays.
+
